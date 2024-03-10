@@ -1,4 +1,4 @@
-**Strategic Safety Solutions: A Data-Driven Approach to Vehicle Design**
+# Strategic Safety Solutions: A Data-Driven Approach to Vehicle Design
 ## a) Organization Description, Problem Statement, and Approach Used
 The project aims to utilize crash investigation data from the National Highway Traffic Safety Administration (NHTSA) to enhance vehicle safety features. By analyzing the Fatality Analysis Reporting System (FARS) dataset, covering fatal traffic crash data from all 50 states, the District of Columbia, and Puerto Rico, the project focuses on identifying trends, patterns, and contributing factors in crash occurrences. The primary objective is to guide the development, adjustment, or introduction of safety solutions for vehicles while adhering to safety regulations mandated by organizations like the NHTSA. The approach involves leveraging crash investigation data to inform safety solutions, emphasizing data collection, cleaning, validation, and analysis to create a robust data warehouse with master and transaction tables.
 
