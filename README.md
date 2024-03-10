@@ -33,9 +33,9 @@ This repository contains resources for setting up and running a Data Warehouse (
 ## Essential Components
 To run the entire DW/BI application, you'll need the following essential components:
 
-## 1.Database Management System (DBMS): Microsoft SQL Server (MSSQL)
+- Database Management System (DBMS): Microsoft SQL Server (MSSQL)
 
-## 2. BI Tool:Power BI
+-  BI Tool: Power BI
 
 ## Instructions
 ## Database Setup:
