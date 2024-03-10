@@ -27,7 +27,7 @@ This comprehensive approach to utilizing crash investigation data underscores th
 
 
 **Data Warehouse and Business Intelligence Application Setup Guide** 
-## Overview
+## DW/BI Application
 This repository contains resources for setting up and running a Data Warehouse (DW) and Business Intelligence (BI) application designed to analyze crash investigation data sourced from the FARS dataset. The application provides comprehensive insights for informed decision-making and safety solution development.
 
 ## Essential Components
