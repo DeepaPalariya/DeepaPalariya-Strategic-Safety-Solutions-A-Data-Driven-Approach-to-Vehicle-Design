@@ -1,0 +1,239 @@
+
+S23	Michigan
+S26	Missouri
+S50	Wisconsin
+S36	Ohio
+S16	Iowa
+S14	Illinois
+S28	Nebraska
+S17	Kansas
+S15	Indiana
+S24	Minnesota
+
+
+The below analysis is for the above 10 mid-west states in order to run the analysis smoothly and not all the states in the United states 
+
+
+Help query to accomplish 1 and 2 
+
+Create view [help] as
+SELECT dbo.Accident_Trx.State_id, dbo.Accident_Trx.accident_date, description_mst_1.category_desc AS FirstHarmfulEvent, description_mst_4.category_desc AS MannerofCollision, description_mst_2.category_desc AS Weather, 
+                  description_mst_3.category_desc AS LightCondition, dbo.Accident_Trx.Case_id, description_mst_5.category_desc AS CrashReason, dbo.description_mst.category_desc AS InjuryDescription, dbo.Person_Trx.VehicleNumber, 
+                  description_mst_6.category_desc AS RoadProfile, description_mst_7.category_desc AS SurfaceCondition, description_mst_8.category_desc AS PrimaryCrashDetails, description_mst_9.category_desc AS AccidentType, 
+                  description_mst_10.category_desc AS IncidentDescription
+FROM     dbo.description_mst INNER JOIN
+                  dbo.Person_Trx ON dbo.description_mst.Desc_id = dbo.Person_Trx.Injury_desc INNER JOIN
+                  dbo.Crashrf_trx INNER JOIN
+                  dbo.description_mst AS description_mst_5 ON dbo.Crashrf_trx.CrashReason = description_mst_5.Desc_id INNER JOIN
+                  dbo.description_mst AS description_mst_1 INNER JOIN
+                  dbo.Accident_Trx ON description_mst_1.Desc_id = dbo.Accident_Trx.FirstHarmfulEvent INNER JOIN
+                  dbo.description_mst AS description_mst_4 ON dbo.Accident_Trx.MannerOfCollision = description_mst_4.Desc_id INNER JOIN
+                  dbo.description_mst AS description_mst_2 ON dbo.Accident_Trx.Weather = description_mst_2.Desc_id INNER JOIN
+                  dbo.description_mst AS description_mst_3 ON dbo.Accident_Trx.LightCondition = description_mst_3.Desc_id ON dbo.Crashrf_trx.State_id = dbo.Accident_Trx.State_id AND dbo.Crashrf_trx.Case_id = dbo.Accident_Trx.Case_id ON 
+                  dbo.Person_Trx.State_id = dbo.Crashrf_trx.State_id AND dbo.Person_Trx.Case_id = dbo.Crashrf_trx.Case_id INNER JOIN
+                  dbo.Vehicle_Trx ON dbo.Person_Trx.State_id = dbo.Vehicle_Trx.State_id AND dbo.Person_Trx.Case_id = dbo.Vehicle_Trx.Case_id INNER JOIN
+                  dbo.description_mst AS description_mst_6 ON dbo.Vehicle_Trx.RoadProfile = description_mst_6.Desc_id INNER JOIN
+                  dbo.description_mst AS description_mst_7 ON dbo.Vehicle_Trx.SurfaceCondition = description_mst_7.Desc_id INNER JOIN
+                  dbo.description_mst AS description_mst_8 ON dbo.Vehicle_Trx.PrimaryCrashDetails = description_mst_8.Desc_id INNER JOIN
+                  dbo.description_mst AS description_mst_9 ON dbo.Vehicle_Trx.AccidentType = description_mst_9.Desc_id INNER JOIN
+                  dbo.Nmcrash_trx ON dbo.Vehicle_Trx.State_id = dbo.Nmcrash_trx.State_id AND dbo.Vehicle_Trx.Case_id = dbo.Nmcrash_trx.Case_id INNER JOIN
+                  dbo.description_mst AS description_mst_10 ON dbo.Nmcrash_trx.Incident_desc = description_mst_10.Desc_id
+
+1. CrashSeverityAnalysis - Count the number of crashes by injury severity and trend analysis of crash severity over time
+
+Create view [CrashSeverityAnalysis] AS
+SELECT InjuryDescription, CONVERT(date, accident_date) AS AccidentDate, COUNT(*) AS TotalCrashCount, State_id
+FROM     dbo.help
+GROUP BY InjuryDescription, CONVERT(date, accident_date), State_id
+
+
+2. Primary Crash Factors: -- Analyzing the primary crash factors
+
+Create view [PrimaryCrashDetailsandSeverity] as
+SELECT InjuryDescription, accident_date, FirstHarmfulEvent, MannerofCollision, Weather, LightCondition, PrimaryCrashDetails, AccidentType, CrashReason, IncidentDescription, RoadProfile, SurfaceCondition, COUNT(*) AS CrashCount, 
+                  State_id
+FROM     dbo.help
+GROUP BY InjuryDescription, accident_date, FirstHarmfulEvent, MannerofCollision, Weather, LightCondition, PrimaryCrashDetails, AccidentType, CrashReason, IncidentDescription, RoadProfile, SurfaceCondition, State_id
+
+
+3.Driver Behavior: 
+a. -- Analyzing the percentage of crashes involving speeding
+
+Create view [%crashes involving speeding] as
+SELECT
+    State_id,
+    COUNT(*) AS TotalCrashes,
+    SUM(CASE WHEN TravelSpeed > SpeedLimit THEN 1 ELSE 0 END) AS SpeedingCrashes,
+    CAST(SUM(CASE WHEN TravelSpeed > SpeedLimit THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0) * 100 AS PercentageSpeedingCrashes
+FROM
+    [Driver Behavior and Conditions]
+GROUP BY
+    State_id;
+
+b. -- Frequency and % of crashes involving impaired driver
+
+Create view [Frequency&%ofcrashesinvolvingImpairedDriver] as
+SELECT 
+    State_id, 
+    COUNT(*) AS TotalCrashes, 
+    SUM(CASE WHEN DrinkingDriverIndicator = 'Yes' THEN 1 ELSE 0 END) AS CrashesInvolvingAlcohol, 
+    SUM(CASE WHEN DrugInvolvmentDescription LIKE '%Yes%' THEN 1 ELSE 0 END) AS CrashesInvolvingDrugs, 
+    SUM(CASE WHEN DrinkingDriverIndicator = 'Yes' THEN 1 ELSE 0 END) + SUM(CASE WHEN DrugInvolvmentDescription LIKE '%Yes%' THEN 1 ELSE 0 END) AS TotalImpairedCrashes,
+    FORMAT(CAST(SUM(CASE WHEN DrinkingDriverIndicator = 'Yes' THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0) * 100, '0.00') + '%' AS PercentageAlcoholCrashes,
+    FORMAT(CAST(SUM(CASE WHEN DrugInvolvmentDescription LIKE '%Yes%' THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0) * 100, '0.00') + '%' AS PercentageDrugCrashes,
+    FORMAT(CAST((SUM(CASE WHEN DrinkingDriverIndicator = 'Yes' THEN 1 ELSE 0 END) + SUM(CASE WHEN DrugInvolvmentDescription LIKE '%Yes%' THEN 1 ELSE 0 END)) AS FLOAT) / NULLIF(COUNT(*), 0) * 100, '0.00') + '%' AS PercentageTotalImpairedCrashes
+FROM     
+    dbo.[DriverBehavior&Conditions]
+GROUP BY 
+    State_id;
+
+c. -- Analysis of distracted driving incidents
+
+Create view [%DistractedDrivingIncidents] as
+SELECT
+    State_id,
+    COUNT(*) AS TotalCrashes,
+    SUM(CASE WHEN DriverDistractionDescription NOT IN ('DD_Not Reported', 'Not Distracted') THEN 1 ELSE 0 END) AS DistractedDrivingIncidents,
+    FORMAT((SUM(CASE WHEN DriverDistractionDescription NOT IN ('DD_Not Reported', 'Not Distracted') THEN 1 ELSE 0 END) * 100.0) / COUNT(*), '0.00') + '%' AS PercentageDistractedDriving
+FROM
+    [DriverBehavior&Conditions]
+GROUP BY
+    State_id;
+
+3. Injury and Damage Analysis:
+a. -- Distribution of injuries by type and severity
+
+Create view [InjuryByType&Severity] as
+SELECT
+    InjuryDescription,
+    COUNT(*) AS InjuryCount
+FROM
+    [Injury and Damage Details]
+GROUP BY
+    InjuryDescription;
+
+b. -- Evaluation of hit-and-run incidents
+
+Create view [Hit&RunIncidents] as
+SELECT
+    State_id,
+    COUNT(*) AS HitAndRunCount
+FROM
+    [Injury and Damage Details]
+WHERE
+    HitRun = 'Yes'
+GROUP BY
+    State_id;
+
+c. -- Analysis of the types of vehicles most prone to damage
+
+Create view [VehicleProneToDamage] as
+SELECT
+    Vehicle_make,
+    Vehicle_model,
+    COUNT(*) AS DamageCount
+FROM
+    [Vehicle&PersonDetails]
+GROUP BY
+    Vehicle_make,
+    Vehicle_model
+
+4. Safety Measures
+
+a. Utilization rate and misuse of restraint systems
+
+CREATE VIEW [RestrainSystemUseCount] 
+AS
+SELECT
+    RestrainSystemUse,
+    COUNT(*) AS UsageCount
+FROM
+    [SafetyMeasures]
+GROUP BY
+    RestrainSystemUse;
+
+CREATE VIEW [RestrainSystemUsewithMisuseCount] 
+AS
+SELECT
+    RestrainSystemUse,
+    RestrainSystemMisuse,
+    COUNT(*) AS UsageCount
+FROM
+    [SafetyMeasures]
+GROUP BY
+    RestrainSystemUse,
+    RestrainSystemMisuse;
+
+
+b. Effectiveness of airbags in preventing injuries
+
+Create view [AirbagUseCount] 
+AS
+SELECT
+    AirbagDescription,
+    COUNT(*) AS AirbagCount
+FROM
+    [SafetyMeasures]
+GROUP BY
+    AirbagDescription;
+
+c. Extrication frequency and effectiveness
+
+Create view [ExtricationFrequency] 
+AS
+
+SELECT
+    ExtricationDescription,
+    COUNT(*) AS ExtricationCount
+FROM
+    [SafetyMeasures]
+GROUP BY
+    ExtricationDescription;
+
+5. Vehicle and Person Details
+
+a. Analysis of the age and gender distribution of involved persons
+
+Create view [Age&PersonTypeCount] 
+AS
+
+SELECT
+    Age,
+    person_type,
+    COUNT(*) AS PersonCount
+FROM
+    [Vehicle&PersonDetails]
+GROUP BY
+    Age,
+    person_type;
+
+b. Identification of vehicle makes and models most frequently involved in crashe
+
+Same as view [VehiclePronetoDamage]
+
+
+c. Assessment of the effectiveness of safety features in vehicles based on injury severity
+
+Create view [InjurySeverityCountbyVEHICLE]
+AS
+SELECT
+    Vehicle_make,
+    Vehicle_model,
+    InjuryDescription,
+    COUNT(*) AS InjuryCount
+FROM
+    [Vehicle&PersonDetails]
+INNER JOIN
+    [Injury&DamageDetails] ON [Vehicle&PersonDetails].Case_id = [Injury&DamageDetails].Case_id
+	GROUP BY
+    Vehicle_make,
+    Vehicle_model,
+    InjuryDescription
+
+
+
+
+
+
+
+

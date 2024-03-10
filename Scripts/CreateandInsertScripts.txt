@@ -1,0 +1,673 @@
+
+****************State Master**************************************
+CREATE TABLE state_mst (
+    state_id VARCHAR (50) PRIMARY KEY,
+    state_name VARCHAR(MAX),
+);
+
+INSERT INTO state_mst (state_id, state_name)
+SELECT state_upload.state_id, state_upload.state_name
+FROM state_upload;
+
+****************Person Master**************************************
+
+CREATE TABLE person_mst (
+    person_id varchar(50) PRIMARY KEY,
+    person_type VARCHAR(255),
+	sex varchar(50),
+
+    );
+	INSERT INTO person_mst (person_id, person_type, sex)
+SELECT person_id, person_type, sex
+FROM person_upload;
+
+
+****************Case Master**************************************
+
+CREATE TABLE case_mst (
+    case_id varchar(50) PRIMARY KEY,
+    State_case INT
+);
+INSERT INTO case_mst (case_id, State_case)
+SELECT case_id, ST_CASE
+FROM case_upload;
+
+
+****************Vehicle Master**************************************
+
+CREATE TABLE vehicle_mst (
+   Vehicle_Id INT PRIMARY KEY,
+   VIN VARCHAR(255),
+   Model_year INT,
+   Vehicle_make VARCHAR(255),
+   Vehicle_model VARCHAR(255),
+   VehicleBody_class VARCHAR(255),
+   VehicleBody_Type VARCHAR(255)
+);
+INSERT INTO vehicle_mst (Vehicle_Id, VIN, Model_year, Vehicle_make, Vehicle_model, VehicleBody_class, VehicleBody_Type)
+SELECT Vehicle_Id, VIN, Model_year, Vehicle_make, Vehicle_model, VehicleBody_class, VehicleBody_Type
+FROM vehicle_upload;
+
+
+****************Category Master**************************************
+
+CREATE TABLE category_mst (
+  category_id INT PRIMARY KEY,
+  category_typ VARCHAR(MAX)  
+);
+INSERT INTO category_mst (category_id, category_typ)
+SELECT category_id, category_typ
+FROM category_upload;
+
+****************Description Master**************************************
+
+CREATE TABLE description_mst (
+  Desc_id varchar(50) PRIMARY KEY,
+  category_id INT,
+  category_desc VARCHAR(MAX),
+  FOREIGN KEY (category_id) REFERENCES category_mst(category_id)
+);
+INSERT INTO description_mst (Desc_id, category_id, category_desc)
+SELECT Desc_id, category_id, category_desc
+FROM desc_upload;
+
+******************************************************************************************************************************************************************************************
+****************Person Transaction **************************************
+
+
+CREATE TABLE Person_Trx (
+    P_Id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT, 
+    Person_no INT,
+    MotorVehicles INT,
+    FirstHarmfulEvent VARCHAR(50),
+    MannerOfCollision VARCHAR(50),
+    Vehicle_Id INT, 
+    Age INT,
+    Person_Id VARCHAR(50),
+    Injury_desc VARCHAR(50),
+    SeatingPosition VARCHAR(50),
+    RestraintSystemUse VARCHAR(50),
+    RestraintSystemMisuse VARCHAR(50),
+    AirBag_desc VARCHAR(50),
+    Ejection_desc VARCHAR(50),
+    EjectionPath_desc VARCHAR(50),
+    Extrication_desc VARCHAR(50),
+    AlcoholDetection_desc VARCHAR(50),
+    AlcoholTestStatus_desc VARCHAR(50),
+    AlcoholTestType VARCHAR(50),
+    DrugInvolvement_desc VARCHAR(50),
+    DrugDetected_desc VARCHAR(50),
+    DriverStatusToDrugTest VARCHAR(50),
+    DiedOnArrival_Scene VARCHAR(50), -- Replacing slash with underscore
+    FOREIGN KEY (State_id) REFERENCES state_mst(state_id),
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id),
+    FOREIGN KEY (Vehicle_Id) REFERENCES vehicle_mst(Vehicle_Id), 
+    FOREIGN KEY (Person_Id) REFERENCES person_mst(Person_id)
+);
+
+
+INSERT INTO Person_Trx (
+    P_Id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Person_no,
+    MotorVehicles,
+    FirstHarmfulEvent,
+    MannerOfCollision,
+    Vehicle_Id,
+    Age,
+    Person_Id,
+    Injury_desc,
+    SeatingPosition,
+    RestraintSystemUse,
+    RestraintSystemMisuse,
+    AirBag_desc,
+    Ejection_desc,
+    EjectionPath_desc,
+    Extrication_desc,
+    AlcoholDetection_desc,
+    AlcoholTestStatus_desc,
+    AlcoholTestType,
+    DrugInvolvement_desc,
+    DrugDetected_desc,
+    DriverStatusToDrugTest,
+    DiedOnArrival_Scene -- Adjusted column name
+)
+SELECT
+    P_Id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Person_no,
+    MotorVehicles,
+    FirstHarmfulEvent,
+    MannerOfCollision,
+    Vehicle_Id,
+    Age, 
+    Person_Id,
+    Injury_desc,
+    SeatingPosition,
+    RestraintSystemUse,
+    RestraintSystemMisuse,
+    AirBag_desc,
+    Ejection_desc,
+    EjectionPath_desc,
+    Extrication_desc,
+    AlcoholDetection_desc,
+    AlcoholTestStatus_desc,
+    AlcoholTestType,
+    DrugInvolvement_desc,
+    DrugDetected_desc,
+    DriverStatusToDrugTest,
+    DiedOnArrival_Scene -- Adjusted column name
+FROM PersonNew;
+
+****************Vehicle Transaction **************************************
+CREATE TABLE Vehicle_Trx (
+    V_Id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT, 
+    Person_no INT,
+    MotorVehicles INT,
+    HitRun VARCHAR(50),
+    VehicleOwner_desc VARCHAR(50),
+    TravelSpeed VARCHAR(100),
+    Under_OverRideIndicator VARCHAR(50),
+    RolloverIndicator VARCHAR(50),
+    VehicleDamage_desc VARCHAR(50),
+    Overspeeding VARCHAR(50),
+    Trafficway_desc VARCHAR(50),
+    SpeedLimit VARCHAR(100),
+    VerticalAlignment VARCHAR(50),
+    RoadProfile VARCHAR(50),
+    PavementType VARCHAR(50),
+    SurfaceCondition VARCHAR(50),
+    TrafficControlDeviceCondition VARCHAR(50),
+    TrafficControlFunction VARCHAR(50),
+    PrimaryCrashDetails VARCHAR(50),
+    AccidentType VARCHAR(50),
+    DrinkingDriverIndicator VARCHAR(50),
+    FOREIGN KEY (State_id) REFERENCES state_mst(state_id),
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id),
+);
+
+INSERT INTO Vehicle_Trx (
+    V_Id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Person_no,
+    MotorVehicles,
+    HitRun,
+    VehicleOwner_desc,
+    TravelSpeed,
+    Under_OverRideIndicator,
+    RolloverIndicator,
+    VehicleDamage_desc,
+    Overspeeding,
+    Trafficway_desc,
+    SpeedLimit,
+    VerticalAlignment,
+    RoadProfile,
+    PavementType,
+    SurfaceCondition,
+    TrafficControlDeviceCondition,
+    TrafficControlFunction,
+    PrimaryCrashDetails,
+    AccidentType,
+    DrinkingDriverIndicator
+)
+SELECT
+    V_Id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Person_no,
+    MotorVehicles,
+    HitRun,
+    VehicleOwner_desc,
+    TravelSpeed,
+    Under_OverRideIndicator,
+    RolloverIndicator,
+    VehicleDamage_desc,
+    Overspeeding,
+    Trafficway_desc,
+    SpeedLimit,
+    VerticalAlignment,
+    RoadProfile,
+    PavementType,
+    SurfaceCondition,
+    TrafficControlDeviceCondition,
+    TrafficControlFunction,
+    PrimaryCrashDetails,
+    AccidentType,
+    DrinkingDriverIndicator
+FROM vehicleN;
+
+
+
+
+
+***************Accident File*******************
+
+CREATE TABLE Accident_Trx (
+    Accident_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    Peds INT,
+    VehicleNumber INT,
+    MotorVehicles INT,
+    County VARCHAR(50),
+    accident_date DATETIME,
+    Tway_id VARCHAR(50), 
+    ROUTENAME VARCHAR(50),
+    RUR_URBNAME VARCHAR(50),
+    FUNC_SYSNAME VARCHAR(50),
+    RD_OWNERNAME VARCHAR(50),
+    NHSNAME VARCHAR(50),
+    FirstHarmfulEvent VARCHAR(50),
+    MannerOfCollision VARCHAR(50),
+    IntersectionType VARCHAR(50),
+    RelatedRoadway VARCHAR(50),
+    WorkZone VARCHAR(50),
+    LightCondition VARCHAR(50),
+    Weather VARCHAR(50),
+    Latitude DECIMAL(18, 10),
+    Longitude DECIMAL(18, 10),
+    Fatals INT,
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id),
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+INSERT INTO Accident_Trx (
+    Accident_id,
+    State_id,
+    Case_id,
+    Peds,
+    VehicleNumber,
+    MotorVehicles,
+    County,
+    accident_date,
+    Tway_id,
+    ROUTENAME,
+    RUR_URBNAME,
+    FUNC_SYSNAME,
+    RD_OWNERNAME,
+    NHSNAME,
+    FirstHarmfulEvent,
+    MannerOfCollision,
+    IntersectionType,
+    RelatedRoadway,
+    WorkZone,
+    LightCondition,
+    Weather,
+    Latitude,
+    Longitude,
+    Fatals
+)
+SELECT
+    Accident_id,
+    State_id,
+    Case_id,
+    Peds,
+    VehicleNumber,
+    MotorVehicles,
+    County,
+    accident_date,
+    Tway_id,
+    ROUTENAME,
+    RUR_URBNAME,
+    FUNC_SYSNAME,
+    RD_OWNERNAME,
+    NHSNAME,
+    FirstHarmfulEvent,
+    MannerOfCollision,
+    IntersectionType,
+    RelatedRoadway,
+    WorkZone,
+    LightCondition,
+    Weather,
+    Latitude,
+    Longitude,
+    Fatals
+FROM AccidentNew;
+
+
+***************Cevent Transaction*******************
+
+CREATE TABLE Cevent_trx (
+    Event_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    AreaImpact VARCHAR(50),
+    CrashSequence VARCHAR(50),
+    FOREIGN KEY (state_id) REFERENCES state_mst(state_id),
+    FOREIGN KEY (case_id) REFERENCES case_mst(case_id)
+);
+INSERT INTO Cevent_trx (
+    Event_id,
+    State_id,
+    Case_id,
+    AreaImpact,
+    CrashSequence
+)
+SELECT
+    Event_id,
+    State_id,
+    Case_id,
+    AreaImpact,
+    CrashSequence
+FROM CeventNew;
+
+
+***************Crashrf Transaction*******************
+
+CREATE TABLE Crashrf_trx (
+    Crash_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    CrashReason VARCHAR(50), 
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id), 
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+
+INSERT INTO Crashrf_trx (
+    Crash_id,
+    State_id,
+    Case_id,
+    CrashReason
+)
+SELECT
+    Crash_id,
+    State_id,
+    Case_id,
+    CrashReason
+FROM crashrfNew;
+
+
+
+***************Damage Transaction*******************
+
+CREATE TABLE Damage_trx (
+    Damage_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT,
+    Damage_Desc VARCHAR(50),
+    FOREIGN KEY (state_id) REFERENCES state_mst(state_id),
+    FOREIGN KEY (case_id) REFERENCES case_mst(case_id)
+);
+INSERT INTO damage_trx (
+    Damage_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Damage_Desc
+)
+SELECT
+    Damage_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Damage_Desc
+FROM damageNew;
+
+
+
+***************Distract Transaction*******************
+
+CREATE TABLE Distract_trx (
+    Distraction_Id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT,
+    DriverDistraction_Desc VARCHAR(50), 
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id), 
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+
+INSERT INTO Distract_trx (
+    Distraction_Id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    DriverDistraction_Desc
+)
+SELECT
+    Distraction_Id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    DriverDistraction_Desc
+FROM distractNew;
+
+
+***************Drimpair Transaction*******************
+
+CREATE TABLE Drimpair_trx (
+    Impair_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT,
+    DriverImpairment_Desc VARCHAR(50), 
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id), 
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+
+INSERT INTO Drimpair_trx (
+    Impair_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    DriverImpairment_Desc
+)
+SELECT
+    Impair_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    DriverImpairment_Desc
+FROM drimpairNew;
+
+
+
+***************Driverrf Transaction*******************
+
+CREATE TABLE Driverrf_trx (
+    Driver_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT,
+    DriverRelatedCondition VARCHAR(50),
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id), 
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+
+INSERT INTO driverrf_trx (
+    Driver_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    DriverRelatedCondition
+)
+SELECT
+    Driver_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    DriverRelatedCondition
+FROM driverrfNew;
+
+
+***************Maneuver Transaction******************* 
+
+CREATE TABLE Maneuver_trx (
+    M_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    VehicleNumber INT,
+    Maneuver_Desc VARCHAR(50),
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id), 
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+INSERT INTO Maneuver_trx (
+    M_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Maneuver_Desc
+)
+SELECT
+    M_id,
+    State_id,
+    Case_id,
+    VehicleNumber,
+    Maneuver_Desc
+FROM ManeuverNew;
+
+
+
+***************Nmcrash Transaction*******************
+CREATE TABLE Nmcrash_trx (
+    I_id INT PRIMARY KEY,
+    State_id VARCHAR(50),
+    Case_id VARCHAR(50),
+    Incident_id INT,
+    Incident_desc VARCHAR(50), 
+    FOREIGN KEY (State_id) REFERENCES state_mst(State_id), 
+    FOREIGN KEY (Case_id) REFERENCES case_mst(Case_id)
+);
+INSERT INTO Nmcrash_trx (
+    I_id,
+    State_id,
+    Case_id,
+    Incident_id,
+    Incident_desc 
+)
+SELECT
+    I_id,
+    State_id,
+    Case_id,
+    Incident_id,
+    Incident_desc
+FROM nmcrashNew;
+
+
+
+****************************************************************************************************************************************************************************************
+
+SIince Desc_id was not added as foreign key for all the transaction tables, so all the tables are edited to do that.
+
+ALTER TABLE [dbo].[TableName]
+ADD Desc_id varchar(50); 
+BEGIN TRANSACTION;
+CREATE TABLE #TempDescIds (RowNumber INT IDENTITY(1,1), Desc_id VARCHAR(10));
+INSERT INTO #TempDescIds (Desc_id) 
+VALUES
+('AC1'),('AC2'),('AC3'),('AC4'),('AC5'),('AC6'),('AC7'),('AC8'),('AC9'),('AC10'),
+('AC11'),('AC12'),('AC13'),('AC14'),('AC15'),('AC16'),('AC17'),('AC18'),('AC19'),('AC20'),
+('AC21'),('AC22'),('AC23'),('AC24'),('AC25'),('AC26'),('AC27'),('AC28'),('AC29'),('AC30'),
+('AC31'),('AC32'),('AC33'),('AC34'),('AC35'),('AC36'),('AC37'),('AC38'),('AC39'),('AC40'),
+('AC41'),('AC42'),('AC43'),('AC44'),('AC45'),('AC46'),('AC47'),('AC48'),('AC49'),('AC50'),
+('AC51'),('AC52'),('AC53'),('AC54'),('AC55'),('AC56'),('AC57'),('AC58'),('AC59'),('AC60'),
+('AC61'),('AC62'),('AC63'),('AC64'),('AC65'),('AC66'),('AC67'),('AC68'),('AC69'),('AC70'),
+('AC71'),('AC72'),('AC73'),('AC74'),('AC75'),('AC76'),('AC77'),('AC78'),('AC79'),('AC80'),
+('AC81'),('AC82'),('AC83'),('AC84'),('AC85'),('AC86'),('AC87'),('AC88'),('AC89'),('AC90'),
+('AC91'),('AC92'),('AC93'),('AC94'),('AC95'),('AC96'),('AC97'),('AC98'),('AC99'),('AC100'),
+('AC101'),('AC102'),('AC103'),('AC104'),('AC105'),('AC106'),('AC107'),('AC108'),('AC109'),('AC110'),
+('AC111'),('AC112'),('AC113'),('AC114'),('AC115'),('AC116'),('AC117'),('AC118'),('AC119'),('AC120'),
+('AC121'),('AC122'),('AC123'),('AC124'),('AC125'),('AC126'),('AC127'),('AC128'),('AC129'),('AC130'),
+('AC131'),('AC132'),('AC133'),('AC134'),('AC135'),('AC136'),('AC137'),('AC138'),('AC139'),('AC140'),
+('AC141'),('AC142'),('AC143'),('AC144'),('AC145'),('AC146'),('AC147'),('AC148'),('AC149'),('AC150'),
+('AC151'),('AC152'),('AC153'),('AC154'),('AC155'),('AC156'),('AC157'),('AC158'),('AC159'),('AC160'),
+('AC161'),('AC162'),('AC163'),('AC164'),('AC165'),('AC166'),('AC167'),('AC168'),('NM1'),('NM2'),
+('NM3'),('NM4'),('NM5'),('NM6'),('NM7'),('NM8'),('NM9'),('NM10'),('NM11'),('NM12'),('NM13'),
+('NM14'),('NM15'),('NM16'),('NM17'),('NM18'),('NM19'),('NM20'),('NM21'),('NM22'),('NM23'),
+('CE1'),('CE2'),('CE3'),('CE4'),('CE5'),('CE6'),('CE7'),('CE8'),('CE9'),('CE10'),('CE11'),
+('CE12'),('CE13'),('CE14'),('CE15'),('CE16'),('CE17'),('CE18'),('CE19'),('CE20'),('CE21'),
+('CE22'),('CE23'),('CE24'),('CE25'),('CE26'),('CE27'),('CE28'),('CE29'),('CE30'),('CE31'),
+('CE32'),('CE33'),('CE34'),('CE35'),('CE36'),('CE37'),('CE38'),('CE39'),('CE40'),('CE41'),
+('CE42'),('CE43'),('CE44'),('CE45'),('CE46'),('CE47'),('CE48'),('CE49'),('CE50'),('CE51'),
+('CE52'),('CE53'),('CE54'),('CE55'),('CE56'),('CE57'),('CE58'),('CE59'),('CE60'),('CE61'),
+('CE62'),('CE63'),('CE64'),('CE65'),('CE66'),('CE67'),('CE68'),('CE69'),('CE70'),('CE71'),
+('CE72'),('CE73'),('CE74'),('CE75'),('CE76'),('CE77'),('CE78'),('CE79'),('CE80'),('CE81'),
+('CE82'),('CE83'),('CE84'),('CE85'),('CE86'),('CE87'),('CE88'),('CE89'),('CE90'),('CE91'),
+('CE92'),('CE93'),('CE94'),('CE95'),('CE96'),('CR1'),('CR2'),('CR3'),('CR4'),('CR5'),('CR6'),
+('CR7'),('CR8'),('CR9'),('CR10'),('CR11'),('CR12'),('CR13'),('CR14'),('CR15'),('CR16'),
+('CR17'),('CR18'),('CR19'),('CR20'),('CR21'),('CR22'),('CR23'),('CR24'),('CR25'),('CR26'),
+('CR27'),('CR28'),('DA1'),('DA2'),('DA3'),('DA4'),('DA5'),('DA6'),('DA7'),('DA8'),('DA9'),
+('DA10'),('DA11'),('DA12'),('DA13'),('DA14'),('DA15'),('DA16'),('DI1'),('DI2'),('DI3'),('DI4'),
+('DI5'),('DI6'),('DI7'),('DI8'),('DI9'),('DI10'),('DI11'),('DI12'),('DI13'),('DI14'),('DI15'),
+('DI16'),('DI17'),('DI18'),('DI19'),('DI20'),('DI21'),('DI22'),('DRP1'),('DRP2'),('DRP3'),('DRP4'),
+('DRP5'),('DRP6'),('DRP7'),('DRP8'),('DRP9'),('DRP10'),('DRP11'),('DRP12'),('DRP13'),('DRP14'),('DRF1'),
+('DRF2'),('DRF3'),('DRF4'),('DRF5'),('DRF6'),('DRF7'),('DRF8'),('DRF9'),('DRF10'),('DRF11'),('DRF12'),
+('DRF13'),('DRF14'),('DRF15'),('DRF16'),('DRF17'),('DRF18'),('DRF19'),('DRF20'),('DRF21'),('DRF22'),
+('DRF23'),('DRF24'),('DRF25'),('DRF26'),('DRF27'),('DRF28'),('DRF29'),('DRF30'),('DRF31'),('DRF32'),
+('DRF33'),('DRF34'),('DRF35'),('DRF36'),('DRF37'),('DRF38'),('DRF39'),('DRF40'),('DRF41'),('DRF42'),
+('DRF43'),('DRF44'),('DRF45'),('DRF46'),('DRF47'),('DRF48'),('DRF49'),('DRF50'),('DRF51'),('DRF52'),
+('DRF53'),('DRF54'),('DRF55'),('DRF56'),('DRF57'),('DRF58'),('DRF59'),('DRF60'),('DRF61'),('DRF62'),
+('DRF63'),('DRF64'),('DRF65'),('DRF66'),('MA1'),('MA2'),('MA3'),('MA4'),('MA5'),('MA6'),('MA7'),('MA8'),('MA9'),('MA10'),
+('PE1'),('PE2'),('PE3'),('PE4'),('PE5'),('PE6'),('PE7'),('PE8'),('PE9'),('PE10'),
+('PE11'),('PE12'),('PE13'),('PE14'),('PE15'),('PE16'),('PE17'),('PE18'),('PE19'),('PE20'),
+('PE21'),('PE22'),('PE23'),('PE24'),('PE25'),('PE26'),('PE27'),('PE28'),('PE29'),('PE30'),
+('PE31'),('PE32'),('PE33'),('PE34'),('PE35'),('PE36'),('PE37'),('PE38'),('PE39'),('PE40'),
+('PE41'),('PE42'),('PE43'),('PE44'),('PE45'),('PE46'),('PE47'),('PE48'),('PE49'),('PE50'),
+('PE51'),('PE52'),('PE53'),('PE54'),('PE55'),('PE56'),('PE57'),('PE58'),('PE59'),('PE60'),
+('PE61'),('PE62'),('PE63'),('PE64'),('PE65'),('PE66'),('PE67'),('PE68'),('PE69'),('PE70'),
+('PE71'),('PE72'),('PE73'),('PE74'),('PE75'),('PE76'),('PE77'),('PE78'),('PE79'),('PE80'),
+('PE81'),('PE82'),('PE83'),('PE84'),('PE85'),('PE86'),('PE87'),('PE88'),('PE89'),('PE90'),
+('PE91'),('PE92'),('PE93'),('PE94'),('PE95'),('PE96'),('PE97'),('PE98'),('PE99'),('PE100'),
+('PE101'),('PE102'),('PE103'),('PE104'),('PE105'),('PE106'),('PE107'),('PE108'),('PE109'),('PE110'),
+('PE111'),('PE112'),('PE113'),('PE114'),('PE115'),('PE116'),('PE117'),('PE118'),('PE119'),('PE120'),
+('PE121'),('PE122'),('PE123'),('PE124'),('VE1'),('VE2'),('VE3'),('VE4'),('VE5'),('VE6'),('VE7'),('VE8'),('VE9'),('VE10'),
+('VE11'),('VE12'),('VE13'),('VE14'),('VE15'),('VE16'),('VE17'),('VE18'),('VE19'),('VE20'),
+('VE21'),('VE22'),('VE23'),('VE24'),('VE25'),('VE26'),('VE27'),('VE28'),('VE29'),('VE30'),
+('VE31'),('VE32'),('VE33'),('VE34'),('VE35'),('VE36'),('VE37'),('VE38'),('VE39'),('VE40'),
+('VE41'),('VE42'),('VE43'),('VE44'),('VE45'),('VE46'),('VE47'),('VE48'),('VE49'),('VE50'),
+('VE51'),('VE52'),('VE53'),('VE54'),('VE55'),('VE56'),('VE57'),('VE58'),('VE59'),('VE60'),
+('VE61'),('VE62'),('VE63'),('VE64'),('VE65'),('VE66'),('VE67'),('VE68'),('VE69'),('VE70'),
+('VE71'),('VE72'),('VE73'),('VE74'),('VE75'),('VE76'),('VE77'),('VE78'),('VE79'),('VE80'),
+('VE81'),('VE82'),('VE83'),('VE84'),('VE85'),('VE86'),('VE87'),('VE88'),('VE89'),('VE90'),
+('VE91'),('VE92'),('VE93'),('VE94'),('VE95'),('VE96'),('VE97'),('VE98'),('VE99'),('VE100'),
+('VE101'),('VE102'),('VE103'),('VE104'),('VE105'),('VE106'),('VE107'),('VE108'),('VE109'),('VE110'),
+('VE111'),('VE112'),('VE113'),('VE114'),('VE115'),('VE116'),('VE117'),('VE118'),('VE119'),('VE120'),
+('VE121'),('VE122'),('VE123'),('VE124'),('VE125'),('VE126'),('VE127'),('VE128'),('VE129'),('VE130'),
+('VE131'),('VE132'),('VE133'),('VE134'),('VE135'),('VE136'),('VE137'),('VE138'),('VE139'),('VE140'),
+('VE141'),('VE142'),('VE143'),('VE144'),('VE145'),('VE146'),('VE147'),('VE148'),('VE149'),('VE150'),
+('VE151'),('VE152'),('VE153'),('VE154'),('VE155'),('VE156'),('VE157'),('VE158'),('VE159'),('VE160'),
+('VE161'),('VE162'),('VE163'),('VE164'),('VE165'),('VE166'),('VE167'),('VE168'),('VE169'),('VE170'),
+('VE171'),('VE172'),('VE173'),('VE174'),('VE175'),('VE176'),('VE177'),('VE178'),('VE179'),('VE180'),
+('VE181'),('VE182'),('VE183'),('VE184'),('VE185'),('VE186'),('VE187'),('VE188'),('VE189'),('VE190'),
+('VE191'),('VE192'),('VE193'),('VE194'),('VE195'),('VE196'),('VE197'),('VE198'),('VE199'),('VE200'),
+('VE201'),('VE202'),('VE203'),('VE204'),('VE205'),('VE206'),('VE207'),('VE208'),('VE209'),('VE210'),
+('VE211'),('VE212'),('VE213'),('VE214')
+
+
+UPDATE t
+SET t.Desc_id = d.Desc_id
+FROM (
+    SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS RowNum
+    FROM [dbo].[TableName]
+) t
+JOIN #TempDescIds d ON t.RowNum = d.RowNumber;
+
+COMMIT TRANSACTION;
+
+
+
+-- Drop the temporary table
+DROP TABLE #TempDescIds;
+
+
+
+ALTER TABLE [dbo].[TableName]  WITH CHECK ADD FOREIGN KEY([Desc_id])
+REFERENCES [dbo].[description_mst] ([Desc_id])
+GO
+
+
+
+

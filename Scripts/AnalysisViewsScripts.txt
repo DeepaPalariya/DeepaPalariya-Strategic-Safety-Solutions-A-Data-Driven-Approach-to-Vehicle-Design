@@ -1,0 +1,158 @@
+
+All the views are for Mid-west states since there is massive data and even after these states the data is like 10 million rows in ne view and so on.
+S23	Michigan
+S26	Missouri
+S50	Wisconsin
+S36	Ohio
+S16	Iowa
+S14	Illinois
+S28	Nebraska
+S17	Kansas
+S15	Indiana
+S24	Minnesota
+
+
+*****************************************************************************************************************************************************************************************
+Crash Characteristics: 
+
+Accident_id, Event_Id, Crash_id: These can help identify unique crash incidents.
+Accident_date, Time: Analyze trends over time to identify patterns in crash occurrences.
+State_id, County: Analyze geographical trends in crash frequency and severity.
+
+
+Create view [Crash Characteristics] as 
+SELECT case_mst.State_case, case_mst.case_id, Accident_Trx.Accident_id, state_mst.state_name, state_mst.state_id, Accident_Trx.accident_date, Accident_Trx.County, Cevent_trx.Event_id, description_mst.category_desc AS AreaImpact, 
+                  description_mst_1.category_desc AS CrashSequence
+FROM     description_mst INNER JOIN
+                  Accident_Trx INNER JOIN
+                  case_mst ON Accident_Trx.Case_id = case_mst.case_id INNER JOIN
+                  state_mst ON Accident_Trx.State_id = state_mst.state_id INNER JOIN
+                  Cevent_trx ON state_mst.state_id = Cevent_trx.State_id ON description_mst.Desc_id = Cevent_trx.AreaImpact INNER JOIN
+                  description_mst AS description_mst_1 ON Cevent_trx.CrashSequence = description_mst_1.Desc_id
+
+**From here you can get, what states have the maximum count with the accident, then maybe on what date and then maybe use that to check the vehicle involved with it - do this once all belows tables are done.*****************************************
+*******************************************************************************************************************************************************************************************
+Vehicle and Person Details: 
+
+VehicleNumber, Vehicle_Id: Understand the involvement of vehicles in crashes.
+Person_Id: Identify individuals involved in crashes and their roles (e.g., drivers, passengers, pedestrians).
+MotorVehicles, Pedestrians: Analyze the involvement of different types of road users in crashes.
+
+Create View [Vehicle and Person Details] as
+SELECT vehicle_mst.Vehicle_Id, vehicle_mst.VIN, vehicle_mst.Model_year, vehicle_mst.Vehicle_make, vehicle_mst.Vehicle_model, vehicle_mst.VehicleBody_class, vehicle_mst.VehicleBody_Type, Person_Trx.State_id, Person_Trx.Case_id, 
+                  Person_Trx.VehicleNumber, Person_Trx.MotorVehicles, person_mst.person_type, person_mst.person_id, person_mst.sex, Person_Trx.Age
+FROM     Person_Trx INNER JOIN
+                  person_mst ON Person_Trx.Person_Id = person_mst.person_id INNER JOIN
+                  vehicle_mst ON Person_Trx.Vehicle_Id = vehicle_mst.Vehicle_Id
+*******************************************************************************************************************************************************************************************
+Crash Factors: 
+
+CrashReason, MannerOfCollision, FirstHarmfulEvent: Identify primary factors contributing to crashes.
+Weather, LightCondition: Analyze the impact of environmental conditions on crash frequency and severity.
+RoadProfile, SurfaceCondition: Understand how road characteristics influence crash outcomes.
+
+
+Create View [Crash Factors] as
+SELECT state_mst.state_id, case_mst.case_id, description_mst.category_desc AS FirstHarmfulEvent, description_mst_1.category_desc AS MannerOfCollision, description_mst_2.category_desc AS Weather, 
+                  description_mst_3.category_desc AS LightCondition, description_mst_4.category_desc AS PrimaryCrashDetails, description_mst_5.category_desc AS AccidentType, description_mst_6.category_desc AS CrashReason, 
+                  description_mst_7.category_desc AS IncidentDescription, description_mst_8.category_desc AS RoadProfile, description_mst_9.category_desc AS SurfaceCondition
+FROM     Accident_Trx INNER JOIN
+                  case_mst ON Accident_Trx.Case_id = case_mst.case_id INNER JOIN
+                  state_mst ON Accident_Trx.State_id = state_mst.state_id INNER JOIN
+                  description_mst ON Accident_Trx.FirstHarmfulEvent = description_mst.Desc_id INNER JOIN
+                  description_mst AS description_mst_1 ON Accident_Trx.MannerOfCollision = description_mst_1.Desc_id INNER JOIN
+                  description_mst AS description_mst_2 ON Accident_Trx.Weather = description_mst_2.Desc_id INNER JOIN
+                  description_mst AS description_mst_3 ON Accident_Trx.LightCondition = description_mst_3.Desc_id INNER JOIN
+                  Vehicle_Trx ON state_mst.state_id = Vehicle_Trx.State_id INNER JOIN
+                  description_mst AS description_mst_4 ON Vehicle_Trx.PrimaryCrashDetails = description_mst_4.Desc_id INNER JOIN
+                  description_mst AS description_mst_5 ON Vehicle_Trx.AccidentType = description_mst_5.Desc_id INNER JOIN
+                  Crashrf_trx ON Vehicle_Trx.State_id = Crashrf_trx.State_id AND Vehicle_Trx.Case_id = Crashrf_trx.Case_id INNER JOIN
+                  description_mst AS description_mst_6 ON Crashrf_trx.CrashReason = description_mst_6.Desc_id INNER JOIN
+                  Nmcrash_trx ON Crashrf_trx.State_id = Nmcrash_trx.State_id AND Crashrf_trx.Case_id = Nmcrash_trx.Case_id INNER JOIN
+                  description_mst AS description_mst_7 ON Nmcrash_trx.Incident_desc = description_mst_7.Desc_id INNER JOIN
+                  description_mst AS description_mst_8 ON Vehicle_Trx.RoadProfile = description_mst_8.Desc_id INNER JOIN
+                  description_mst AS description_mst_9 ON Vehicle_Trx.SurfaceCondition = description_mst_9.Desc_id
+
+*******************************************************************************************************************************************************************************************
+Driver Behavior and Conditions: 
+
+DriverDistraction_Desc, DriverImpairment_Desc: Investigate distractions and impairments contributing to crashes.
+Overspeeding, DrinkingDriverIndicator: Assess the role of speeding and alcohol impairment in crashes.
+
+Create view [Driver Behavior and Conditions] as
+SELECT Vehicle_Trx.State_id, Vehicle_Trx.Case_id, Vehicle_Trx.SpeedLimit, Vehicle_Trx.TravelSpeed, description_mst.category_desc AS OverSpeeding, Vehicle_Trx.DrinkingDriverIndicator, 
+                  description_mst_2.category_desc AS DriverRelatedCondition, description_mst_3.category_desc AS DriverImpairmentDescription, description_mst_4.category_desc AS DriverDistractionDescription, 
+                  description_mst_5.category_desc AS ManeuverDescription, description_mst_6.category_desc AS AlcoholDetectionDescription, description_mst_7.category_desc AS AlcoholTestStatusDescription, 
+                  description_mst_8.category_desc AS AlcoholTestType, description_mst_9.category_desc AS DrugInvolvmentDescription, description_mst_10.category_desc AS DrugDetectedDescription, 
+                  description_mst_11.category_desc AS DriverStatusToDrugTest, Drimpair_trx.VehicleNumber
+FROM     Distract_trx INNER JOIN
+                  Drimpair_trx ON Distract_trx.State_id = Drimpair_trx.State_id AND Distract_trx.Case_id = Drimpair_trx.Case_id AND Distract_trx.VehicleNumber = Drimpair_trx.VehicleNumber INNER JOIN
+                  Driverrf_trx ON Drimpair_trx.State_id = Driverrf_trx.State_id AND Drimpair_trx.Case_id = Driverrf_trx.Case_id AND Drimpair_trx.VehicleNumber = Driverrf_trx.VehicleNumber INNER JOIN
+                  Vehicle_Trx ON Driverrf_trx.State_id = Vehicle_Trx.State_id AND Driverrf_trx.Case_id = Vehicle_Trx.Case_id AND Driverrf_trx.VehicleNumber = Vehicle_Trx.VehicleNumber INNER JOIN
+                  description_mst ON Vehicle_Trx.Overspeeding = description_mst.Desc_id INNER JOIN
+                  description_mst AS description_mst_2 ON Driverrf_trx.DriverRelatedCondition = description_mst_2.Desc_id INNER JOIN
+                  description_mst AS description_mst_3 ON Drimpair_trx.DriverImpairment_Desc = description_mst_3.Desc_id INNER JOIN
+                  description_mst AS description_mst_4 ON Distract_trx.DriverDistraction_Desc = description_mst_4.Desc_id INNER JOIN
+                  Maneuver_trx ON Distract_trx.State_id = Maneuver_trx.State_id AND Distract_trx.Case_id = Maneuver_trx.Case_id AND Vehicle_Trx.VehicleNumber = Maneuver_trx.VehicleNumber AND 
+                  Distract_trx.VehicleNumber = Maneuver_trx.VehicleNumber INNER JOIN
+                  description_mst AS description_mst_5 ON Maneuver_trx.Maneuver_Desc = description_mst_5.Desc_id INNER JOIN
+                  Person_Trx ON Maneuver_trx.State_id = Person_Trx.State_id AND Maneuver_trx.Case_id = Person_Trx.Case_id AND Maneuver_trx.VehicleNumber = Person_Trx.VehicleNumber INNER JOIN
+                  description_mst AS description_mst_6 ON Person_Trx.AlcoholDetection_desc = description_mst_6.Desc_id INNER JOIN
+                  description_mst AS description_mst_7 ON Person_Trx.AlcoholTestStatus_desc = description_mst_7.Desc_id INNER JOIN
+                  description_mst AS description_mst_8 ON Person_Trx.AlcoholTestType = description_mst_8.Desc_id INNER JOIN
+                  description_mst AS description_mst_9 ON Person_Trx.DrugInvolvement_desc = description_mst_9.Desc_id INNER JOIN
+                  description_mst AS description_mst_10 ON Person_Trx.DrugDetected_desc = description_mst_10.Desc_id INNER JOIN
+                  description_mst AS description_mst_11 ON Person_Trx.DriverStatusToDrugTest = description_mst_11.Desc_id CROSS JOIN
+                  description_mst AS description_mst_1
+
+
+
+*******************************************************************************************************************************************************************************************
+Injury and Damage Details: 
+
+Injury_desc: Analyze the types and severity of injuries sustained in crashes.
+Damage_Desc, VehicleDamage_desc: Understand the extent of vehicle damage resulting from crashes.
+
+
+Create view [Injury and Damage Details] as
+SELECT Person_Trx.State_id, Person_Trx.Case_id, Person_Trx.VehicleNumber, description_mst.category_desc AS InjuryDescription, description_mst_1.category_desc AS VehicleOwnerDescription, Vehicle_Trx.HitRun, 
+                  description_mst_2.category_desc AS VehicleDamageDescription, description_mst_3.category_desc AS TrafficWayDescription, description_mst_4.category_desc AS VerticleAlignment, 
+                  description_mst_5.category_desc AS DiedOnArrival_Scene, Vehicle_Trx.Person_no
+FROM     Person_Trx INNER JOIN
+                  Vehicle_Trx ON Person_Trx.State_id = Vehicle_Trx.State_id AND Person_Trx.Case_id = Vehicle_Trx.Case_id INNER JOIN
+                  description_mst ON Person_Trx.Injury_desc = description_mst.Desc_id INNER JOIN
+                  description_mst AS description_mst_1 ON Vehicle_Trx.VehicleOwner_desc = description_mst_1.Desc_id INNER JOIN
+                  description_mst AS description_mst_2 ON Vehicle_Trx.VehicleDamage_desc = description_mst_2.Desc_id INNER JOIN
+                  description_mst AS description_mst_3 ON Vehicle_Trx.Trafficway_desc = description_mst_3.Desc_id INNER JOIN
+                  description_mst AS description_mst_4 ON Vehicle_Trx.VerticalAlignment = description_mst_4.Desc_id INNER JOIN
+                  description_mst AS description_mst_5 ON Person_Trx.DiedOnArrival_Scene = description_mst_5.Desc_id
+
+
+
+*******************************************************************************************************************************************************************************************
+Safety Measures:
+
+RestraintSystemUse, AirBag_desc: Evaluate the effectiveness of safety systems in mitigating injuries.
+TrafficControlDeviceCondition, TrafficControlFunction: Assess the role of traffic control devices in crash prevention.
+
+Create view [Safety Measures] as
+SELECT Vehicle_Trx.State_id, Vehicle_Trx.Case_id, Vehicle_Trx.Person_no, description_mst.category_desc AS RouteName, description_mst_1.category_desc AS IntersectionType, description_mst_2.category_desc AS RestrainSystemUse, 
+                  description_mst_3.category_desc AS RestrainSystemMisuse, description_mst_4.category_desc AS AirbagDescription, description_mst_5.category_desc AS SeatingPosition, description_mst_6.category_desc AS EjectionDescription, 
+                  description_mst_7.category_desc AS EjectionPathDescription, description_mst_8.category_desc AS TrafficControlFunction, description_mst_9.category_desc AS TrafficControlDeviceCondition, 
+                  description_mst_10.category_desc AS ExtricationDescription
+FROM     Person_Trx INNER JOIN
+                  Vehicle_Trx ON Person_Trx.State_id = Vehicle_Trx.State_id AND Person_Trx.Case_id = Vehicle_Trx.Case_id AND Person_Trx.VehicleNumber = Vehicle_Trx.VehicleNumber AND Person_Trx.Person_no = Vehicle_Trx.Person_no INNER JOIN
+                  Accident_Trx ON Vehicle_Trx.State_id = Accident_Trx.State_id AND Vehicle_Trx.Case_id = Accident_Trx.Case_id AND Vehicle_Trx.VehicleNumber = Accident_Trx.VehicleNumber INNER JOIN
+                  description_mst ON Accident_Trx.ROUTENAME = description_mst.Desc_id INNER JOIN
+                  description_mst AS description_mst_1 ON Accident_Trx.IntersectionType = description_mst_1.Desc_id INNER JOIN
+                  description_mst AS description_mst_2 ON Person_Trx.RestraintSystemUse = description_mst_2.Desc_id INNER JOIN
+                  description_mst AS description_mst_3 ON Person_Trx.RestraintSystemMisuse = description_mst_3.Desc_id INNER JOIN
+                  description_mst AS description_mst_4 ON Person_Trx.AirBag_desc = description_mst_4.Desc_id INNER JOIN
+                  description_mst AS description_mst_5 ON Person_Trx.SeatingPosition = description_mst_5.Desc_id INNER JOIN
+                  description_mst AS description_mst_6 ON Person_Trx.Ejection_desc = description_mst_6.Desc_id INNER JOIN
+                  description_mst AS description_mst_7 ON Person_Trx.EjectionPath_desc = description_mst_7.Desc_id INNER JOIN
+                  description_mst AS description_mst_8 ON Vehicle_Trx.TrafficControlFunction = description_mst_8.Desc_id INNER JOIN
+                  description_mst AS description_mst_9 ON Vehicle_Trx.TrafficControlDeviceCondition = description_mst_9.Desc_id INNER JOIN
+                  description_mst AS description_mst_10 ON Person_Trx.Extrication_desc = description_mst_10.Desc_id
+
+
